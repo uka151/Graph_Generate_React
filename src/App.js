@@ -1,16 +1,12 @@
-//import logo from './logo.svg';
-import './App.css';
-import LineChart from './Component/LineChart';
+ import LineChart from './Component/LineChart';
+
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-  
-         <LineChart/>
-      </header>
-    </div>
-  );
+    <>
+    <LineChart/> 
+  </>);
 }
 
 export default App;

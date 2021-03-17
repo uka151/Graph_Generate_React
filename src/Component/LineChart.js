@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-//import { Alert } from 'reactstrap';
+import { Row,Col,Container,Tooltip } from 'reactstrap';
 import {Line} from 'react-chartjs-2';
 function LineChart(){
-    //Hold Current data before render
+    //base chart data before render
      const [chartdata, setChartData]=useState({});
-     // Hold tje data after delete operation perform
+     const [data,setData]=useState([12,38,15,22,30,18,60]);
+     const [labal, setLabal]=useState(['Jan', 'Feb','Mar','Apr','May','Jun',
+     'Jul']);
+     // Hold the data after delete operation perform
      const [chartEntries, setchartEntries] = useState([]);
      const [label, setlableEntries]=useState([]);
      // Hold Average & Delete Value
@@ -13,7 +16,11 @@ function LineChart(){
      //Prevous data hold before update;
      const[tempdata,setTempdata]=useState(0);
      const[templabel, setTemplabel]=useState(0);
+     //Tooltip
+     const [tooltipOpen, setTooltipOpen] = useState(false);
 
+     const toggle = () => setTooltipOpen(!tooltipOpen);
+ 
 
 
 
@@ -23,7 +30,6 @@ function LineChart(){
         setTemplabel(label);
          if(event.length>0){
             let index=event[0]._index;
-            
             setExclude(chartEntries[index]);
             let newEntries = chartEntries.filter((entry, entryIindex) => entryIindex !== index);
             setchartEntries(newEntries)
@@ -33,7 +39,7 @@ function LineChart(){
          }
 
      }
-    function find_average(array) {
+    const find_average=(array)=>{
         var sum = 0;
         array.forEach(num => {
             sum += num;
@@ -48,7 +54,7 @@ function LineChart(){
                  label:[
                       "No of Vote"
                  ],
-                 data: chartEntries,
+                 data: data,
                  borderColor: [
                      'rgba(255, 99, 132, 1)',
                      'rgba(54, 162, 235, 1)',
@@ -94,41 +100,38 @@ function LineChart(){
            }],
        }
    }
-function updateData(){
-    setChartData(tempdata);
-    setchartEntries(templabel);
+const upPrevData=(event)=>{
+    setExclude(0);
+    setlableEntries(templabel);
+    setchartEntries(tempdata);
     setAverage(find_average(tempdata));
 }
  useEffect(()=>{ 
     if(chartEntries.length > 0) {
      chart()
     }else{
-        let chartEntries = [12,19,15,22,35,18,50];
-        let labal=['Jan', 'Feb','Mar','Apr','May','Jun',
-        'Jul'];
         setlableEntries(labal);
-        setchartEntries(chartEntries);
-        setAverage(find_average(chartEntries));
-
+        setchartEntries(data);
+        setAverage(find_average(data));
     }
  },[chartEntries]
 
- 
  )
 
     return(
-        <div>
-        
-            <Line data={chartdata} options={options} width={600} height={300} onElementsClick={(e) =>handleDelete(e)}/>
-            <div className="row">
-            <div className="col md-6" onClick={()=>updateData()}>Excluding Data:{excludedata}</div>
-            <div className="col md-6"> Average of Data:{average}</div>
-
-            <div>{tempdata}</div>
-            <div>{templabel}</div>
-             </div>  
-        
-        </div>
+        <Container>
+           <Row>
+               <Col style={{width:"500px"}} >
+            <Line data={chartdata} options={options}  onElementsClick={(e) =>handleDelete(e)}/></Col>
+            <Col justify-center style={{padding:"20px"}}>
+           <h5 onClick={()=>upPrevData()} id="ExcludeDataMsg">Excluding Data:{excludedata}</h5>
+           <Tooltip placement="left" isOpen={tooltipOpen} target="ExcludeDataMsg" toggle={toggle}>
+        Click me to Enclude this Data
+      </Tooltip>
+            <h5>Average of Data:{average}</h5>
+            </Col> 
+            </Row> 
+        </Container>
     )
 }
 
