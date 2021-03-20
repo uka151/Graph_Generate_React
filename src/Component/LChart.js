@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import {Line}  from 'react-chartjs-2';
 import {Row,Col,Container,Button} from 'reactstrap';
+import TooltipItem from './Tooltipitem';
 //import { ReactTags } from 'react-tag-input';
 
 const LineChart =()=>{
   // Main ChartData
     const[chartReady,setChartReady]=useState();
-    const[chartdata,setChartData]=useState([{Data:14,Month:'Jan'},{Data:35,Month:'Feb'},{Data:40,Month:'Mar'},{Data:5,Month:'Apr'},{Data:60,Month:'May'},{Data:44,Month:'Jun'}])
+    const[chartdata,setChartData]=useState([{Data:14,Month:'Jan'},{Data:35,Month:'Feb'},{Data:40,Month:'Mar'},{Data:5,Month:'Apr'},{Data:60,Month:'May'},{Data:44,Month:'Jun'},{Data:96,Month:'Jul'},{Data:28,Month:'Aug'}])
   // ChartUpdate data
     const[Data,setData]=useState(0);
     const[Label,setLable]=useState("");
-  // Average & ExcludeData List
+  // ExcludeData List
     const[ExcludeData,setExecludeData]=useState([{ Data:'', Label:'' }])
-
+   
     const chart = () => {
         let d=chartdata.map((item)=>item.Data);
         setData(d);
@@ -83,12 +84,11 @@ const LineChart =()=>{
     }
     
     
-    const updataDatatoMain=(e)=>{
-        let x=e.target.innerText.split(" ");
-        let updateList=[...chartdata, ...[{ Data: parseInt(x[0]), Month:x[1] }]];
+    const updataDatatoMain=(item)=>{
+      //  let x=e.target.innerText.split(" ");
+        let updateList=[...chartdata, ...[{ Data: parseInt(item.Data), Month:item.Label}]];
         setChartData(updateList.flat());
-        chartdata.sort((a, b) => a.Month.localeCompare(b.Month));
-        setExecludeData(ExcludeData.filter((item)=>item.Label!==x[1]));
+        setExecludeData(ExcludeData.filter((Item)=>Item.Label!==item.Label));
         
        
     }
@@ -107,7 +107,7 @@ useEffect(()=>{
         return allMonths.indexOf(a.Month) - allMonths.indexOf(b.Month);
     });
 
- })
+ },)
     
     return(
         <>
@@ -121,13 +121,20 @@ useEffect(()=>{
                     <Row>
                    { ExcludeData.map((item, i) => (
                           <>                           
-                            {item.Data!==''?<Button color="secondary" style={{margin:"20px"}} onClick={(e) => updataDatatoMain(e)} >{item.Data} {item.Label}</Button> 
-                            :null}        
+                            {item.Data!==''?
+                            <>
+                            <Button color="secondary" className="ml-3 rounded-left-1"   id={item.Label} 
+                             >{item.Data}</Button>
+                            <Button style={{padding:"0px", border:"1"}} className=" rounded-right-1" onClick={() => updataDatatoMain(item)}>
+                            <i className="fa fa-close fa-lg"></i>
+                            <TooltipItem label={item.Label} data={item.Data}></TooltipItem>
+                            </Button></>:null}        
                             </>
                         ))}
                     </Row>
-   
-                    <h6>Average:{Data.length>0?find_Average(Data):null}</h6>
+                    <h6>Average:{Data.length>0?Math.round(find_Average(Data)):null}</h6>
+                   
+     
                 </Col>
             </Row>
         </Container>
