@@ -11,7 +11,7 @@ const LineChart =()=>{
   // ChartUpdate data
     const[Data,setData]=useState(0);
     const[Label,setLable]=useState("");
-  // ExcludeData List
+  // ExcludeData
     const[ExcludeData,setExecludeData]=useState([{ Data:'', Label:'' }])
    
     const chart = () => {
