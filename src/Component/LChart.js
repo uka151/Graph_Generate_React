@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {Line}  from 'react-chartjs-2';
-import {Row,Col,Container,Button} from 'reactstrap';
+import {Row,Col,Container,Button,ButtonGroup} from 'reactstrap';
 import TooltipItem from './Tooltipitem';
+
+
 //import { ReactTags } from 'react-tag-input';
 
 const LineChart =()=>{
+ 
   // Main ChartData
     const[chartReady,setChartReady]=useState();
     const[chartdata,setChartData]=useState([{Data:14,Month:'Jan'},{Data:35,Month:'Feb'},{Data:40,Month:'Mar'},{Data:5,Month:'Apr'},{Data:60,Month:'May'},{Data:44,Month:'Jun'},{Data:96,Month:'Jul'},{Data:28,Month:'Aug'}])
@@ -13,6 +16,8 @@ const LineChart =()=>{
     const[Label,setLable]=useState("");
   // ExcludeData
     const[ExcludeData,setExecludeData]=useState([{ Data:'', Label:'' }])
+   // outlier
+   const[element,setElement]=useState([15, 17, 19, 16, 14,27, 58]);
    
     const chart = () => {
         let d=chartdata.map((item)=>item.Data);
@@ -49,9 +54,6 @@ const LineChart =()=>{
             display: true,
             text: 'Chartjs Line',
         },
-        tooltips: {
-
-        },
         scales:{
             xAxes: [{
                 display: true,
@@ -82,8 +84,7 @@ const LineChart =()=>{
            
         }  
     }
-    
-    
+ 
     const updataDatatoMain=(item)=>{
       //  let x=e.target.innerText.split(" ");
         let updateList=[...chartdata, ...[{ Data: parseInt(item.Data), Month:item.Label}]];
@@ -100,6 +101,29 @@ const LineChart =()=>{
         });
         return sum / array.length
     }
+    function filterOutliers(someArray) {
+                  
+     if(someArray.length < 4)
+         return someArray;   
+       let values, q1, q3, iqr, maxValue, minValue;
+       
+       values = someArray.slice().sort( (a, b) => a - b);//copy array fast and sort
+        q1 = values[Math.floor((values.length / 4))];
+       // Likewise for q3. 
+        q3 = values[Math.floor((values.length * (3 / 4)))];
+       iqr = q3 - q1;
+       maxValue = q3 + iqr * 1.5;
+       minValue = q1 - iqr * 1.5;
+       console.log("Lower Q:"+ q1);
+       console.log("upper Q:"+ q3);
+       console.log("inter Q:"+ iqr);
+       console.log(minValue);
+       console.log(maxValue);
+       setElement(values.filter((x) => (x > minValue) && (x < maxValue)));
+      
+        
+      }
+      
 useEffect(()=>{  
         chart(); 
         const allMonths = ['Jan','Feb','Mar', 'Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -117,26 +141,40 @@ useEffect(()=>{
                 <Line data={chartReady} options={options} onElementsClick={(e) => handleDelete(e)} /></Col>
                 <Col justify-center style={{ padding: "20px" }}>
                 <h5>Excluding Data:</h5>
-                 <p>Please click on data for Enclude:</p>
+                <p>Please click on data:</p>
                     <Row>
                    { ExcludeData.map((item, i) => (
                           <>                           
                             {item.Data!==''?
                             <>
-                            <Button color="secondary" className="ml-3 rounded-left-1"   id={item.Label} 
+                            <ButtonGroup >
+                            <Button color="btn btn-secondary btn-sm" className="ml-3 rounded-left-1"   id={item.Label} 
                              >{item.Data}</Button>
-                            <Button style={{padding:"0px", border:"1"}} className=" rounded-right-1" onClick={() => updataDatatoMain(item)}>
+                             <TooltipItem label={item.Label} data={item.Data}></TooltipItem>
+                            <Button style={{padding:"0px", border:"1"}} color="btn btn-secondary btn-sm"  id="remove" onClick={() => updataDatatoMain(item)}>
                             <i className="fa fa-close fa-lg"></i>
-                            <TooltipItem label={item.Label} data={item.Data}></TooltipItem>
-                            </Button></>:null}        
+                            <TooltipItem label="remove" data={item.data}></TooltipItem>
+                            </Button> </ButtonGroup></>:null}        
                             </>
                         ))}
                     </Row>
                     <h6>Average:{Data.length>0?Math.round(find_Average(Data)):null}</h6>
-                   
-     
+                 
                 </Col>
+
+                
             </Row>
+            <div>
+           
+                    <Button onClick={()=>filterOutliers(element)}>Outlier Remove</Button>
+                    {
+                        element.map((d,i)=>
+                            <>
+                            <h6>{d}</h6>
+                            </>
+                        )
+                    }
+            </div>
         </Container>
         
         
