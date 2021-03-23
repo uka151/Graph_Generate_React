@@ -18,6 +18,7 @@ const LineChart =()=>{
     const[ExcludeData,setExecludeData]=useState([{ Data:'', Label:'' }])
    // outlier
    const[element,setElement]=useState([15, 17, 19, 16, 14,27, 58]);
+   const[outlierData,setOutLierData]=useState([]);
    
     const chart = () => {
         let d=chartdata.map((item)=>item.Data);
@@ -119,9 +120,19 @@ const LineChart =()=>{
        console.log("inter Q:"+ iqr);
        console.log(minValue);
        console.log(maxValue);
-       setElement(values.filter((x) => (x > minValue) && (x < maxValue)));
-      
-        
+     
+       var filteredValues = values.filter(function(x) {
+        return (x <= maxValue) && (x >= minValue);
+    });
+    setElement(filteredValues);
+
+    values.forEach((item,i)=>{
+              if(item<minValue || item>maxValue){
+                  setOutLierData(outlierData=>[...outlierData,item]);
+              }
+    })
+    console.log(outlierData);
+       
       }
       
 useEffect(()=>{  
@@ -164,6 +175,8 @@ useEffect(()=>{
 
                 
             </Row>
+            <Row>
+                <Col>
             <div>
            
                     <Button onClick={()=>filterOutliers(element)}>Outlier Remove</Button>
@@ -174,7 +187,18 @@ useEffect(()=>{
                             </>
                         )
                     }
-            </div>
+                    
+            </div></Col>
+            <Col>
+            <div>
+            <h6>Outlier</h6>
+                {outlierData.length>0? outlierData.map((da,i)=>
+                   <>
+                    <h5>{da}</h5>
+                    </>
+                ):null}
+            </div></Col>
+            </Row>
         </Container>
         
         
